@@ -6,10 +6,10 @@ NULL=> /dev/null 2>&1
 show:
 	@kubectl get svc --selector repro=true
 
-test-success-1.24.12:
+test-success-%:
 	@echo "--> start clean"
 	make clean
-	make KWOK_KUBE_VERSION=1.24.12 kwok
+	make KWOK_KUBE_VERSION=$* kwok
 
 	@echo "\n--> this installs without error"
 	$(UPSTALL) --set servicePortA=1000 --set servicePortB=2000 $(NULL)
