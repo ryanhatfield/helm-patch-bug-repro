@@ -1,6 +1,7 @@
 include kwok.mk
 
 UPSTALL=helm upgrade --install test test/.
+TEMPLATE=helm template test/.
 NULL=> /dev/null 2>&1
 
 show:
@@ -21,6 +22,23 @@ test-success-%:
 
 	@echo "\n--> service-a and service-b both succeed"
 	$(UPSTALL) --set servicePortA=4000 --set servicePortB=5000 $(NULL)
+	@make show
+
+test-kubectl-success-%:
+	@echo "--> start clean"
+	make clean
+	make KWOK_KUBE_VERSION=$* kwok
+
+	@echo "\n--> this installs without error"
+	$(TEMPLATE) --set servicePortA=1000 --set servicePortB=2000 | kubectl apply -f- $(NULL)
+	@make show
+
+	@echo "\n--> service-a and service-b both fail"
+	$(TEMPLATE) --set servicePortA=fail --set servicePortB=3000 | kubectl apply -f- $(NULL) || true
+	@make show
+
+	@echo "\n--> service-a and service-b both succeed"
+	$(TEMPLATE) --set servicePortA=4000 --set servicePortB=5000 | kubectl apply -f- $(NULL)
 	@make show
 
 test-failing-%:
@@ -44,6 +62,27 @@ test-failing-%:
 	$(UPSTALL) --set servicePortA=6000 --set servicePortB=7000 $(NULL) || true
 	@make show
 
+test-kubectl-failing-%:
+	@echo "--> start clean"
+	make clean
+	make KWOK_KUBE_VERSION=$* kwok
+
+	@echo "\n--> this installs without error"
+	$(TEMPLATE) --set servicePortA=1000 --set servicePortB=2000 | kubectl apply -f- $(NULL)
+	@make show
+
+	@echo "\n--> helm upgrade fails, service-a fails, but service-b succeeds and is now 3000"
+	$(TEMPLATE) --set servicePortA=fail --set servicePortB=3000 | kubectl apply -f- $(NULL) || true
+	@make show
+
+	@echo "\n--> helm upgrade fails, service-a succeeds and is now 4000, but service-b fails"
+	$(TEMPLATE) --set servicePortA=4000 --set servicePortB=5000 | kubectl apply -f- $(NULL) || true
+	@make show
+
+	@echo "\n--> helm upgrade fails, service-a and service-b both fail consistently"
+	$(TEMPLATE) --set servicePortA=6000 --set servicePortB=7000 | kubectl apply -f- $(NULL) || true
+	@make show
+
 .PHONY: test
 test:
 	make --no-print-directory test-success-1.24.12
@@ -51,6 +90,14 @@ test:
 	@echo =============================
 	@echo
 	make --no-print-directory test-failing-1.25.8
+	@echo
+	@echo =============================
+	@echo
+	make --no-print-directory test-kubectl-success-1.24.12
+	@echo
+	@echo =============================
+	@echo
+	make --no-print-directory test-kubectl-failing-1.25.8
 
 
 clean: clean-kwok
