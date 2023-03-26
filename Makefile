@@ -24,24 +24,7 @@ test-success-%:
 	$(UPSTALL) --set servicePortA=4000 --set servicePortB=5000 $(NULL)
 	@make show
 
-test-kubectl-success-%:
-	@echo "--> start clean"
-	make clean
-	make KWOK_KUBE_VERSION=$* kwok
-
-	@echo "\n--> this installs without error"
-	$(TEMPLATE) --set servicePortA=1000 --set servicePortB=2000 | kubectl apply -f- $(NULL)
-	@make show
-
-	@echo "\n--> service-a and service-b both fail"
-	$(TEMPLATE) --set servicePortA=fail --set servicePortB=3000 | kubectl apply -f- $(NULL) || true
-	@make show
-
-	@echo "\n--> service-a and service-b both succeed"
-	$(TEMPLATE) --set servicePortA=4000 --set servicePortB=5000 | kubectl apply -f- $(NULL)
-	@make show
-
-test-failing-%:
+test-failure-%:
 	@echo "--> start clean"
 	make clean
 	make KWOK_KUBE_VERSION=$* kwok
@@ -62,21 +45,38 @@ test-failing-%:
 	$(UPSTALL) --set servicePortA=6000 --set servicePortB=7000 $(NULL) || true
 	@make show
 
-test-kubectl-success-%:
+test-kubectl-1.24.12:
 	@echo "--> start clean"
 	make clean
-	make KWOK_KUBE_VERSION=$* kwok
+	make KWOK_KUBE_VERSION=1.24.12 kwok
 
 	@echo "\n--> this installs without error"
 	$(TEMPLATE) --set servicePortA=1000 --set servicePortB=2000 | kubectl apply -f- $(NULL)
 	@make show
 
-	@echo "\n--> service-a fails, but service-b succeeds and is now 3000"
+	@echo "\n--> service-a and service-b both fails"
 	$(TEMPLATE) --set servicePortA=fail --set servicePortB=3000 | kubectl apply -f- $(NULL) || true
 	@make show
 
-	@echo "\n--> success, service-a is now 4000, and service-b is 5000"
-	$(TEMPLATE) --set servicePortA=4000 --set servicePortB=5000 | kubectl apply -f- $(NULL) || true
+	@echo "\n--> service-a and service-b both succeed"
+	$(TEMPLATE) --set servicePortA=4000 --set servicePortB=5000 | kubectl apply -f- $(NULL)
+	@make show
+
+test-kubectl-1.25.8:
+	@echo "--> start clean"
+	make clean
+	make KWOK_KUBE_VERSION=1.25.8 kwok
+
+	@echo "\n--> this installs without error"
+	$(TEMPLATE) --set servicePortA=1000 --set servicePortB=2000 | kubectl apply -f- $(NULL)
+	@make show
+
+	@echo "\n--> service-a fails, and service-b succeeds"
+	$(TEMPLATE) --set servicePortA=fail --set servicePortB=3000 | kubectl apply -f- $(NULL) || true
+	@make show
+
+	@echo "\n--> service-a and service-b both succeed"
+	$(TEMPLATE) --set servicePortA=4000 --set servicePortB=5000 | kubectl apply -f- $(NULL)
 	@make show
 
 .PHONY: test
@@ -85,15 +85,15 @@ test:
 	@echo
 	@echo =============================
 	@echo
-	make --no-print-directory test-failing-1.25.8
+	make --no-print-directory test-failure-1.25.8
 	@echo
 	@echo =============================
 	@echo
-	make --no-print-directory test-kubectl-success-1.24.12
+	make --no-print-directory test-kubectl-1.24.12
 	@echo
 	@echo =============================
 	@echo
-	make --no-print-directory test-kubectl-success-1.25.8
+	make --no-print-directory test-kubectl-1.25.8
 
 
 clean: clean-kwok
