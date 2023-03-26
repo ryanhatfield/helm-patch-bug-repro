@@ -93,7 +93,7 @@ test:
 	@echo
 	@echo =============================
 	@echo
-	make --no-print-directory test-kubectl-failing-1.25.8
+	make --no-print-directory test-kubectl-success-1.25.8
 
 
 clean: clean-kwok
