@@ -6,10 +6,10 @@ NULL=> /dev/null 2>&1
 show:
 	@kubectl get svc --selector repro=true
 
-test-1.24:
+test-success-1.24.12:
 	@echo "--> start clean"
-	make clean $(NULL)
-	make KWOK_KUBE_VERSION=1.24.0 kwok $(NULL)
+	make clean
+	make KWOK_KUBE_VERSION=1.24.12 kwok
 
 	@echo "\n--> this installs without error"
 	$(UPSTALL) --set servicePortA=1000 --set servicePortB=2000 $(NULL)
@@ -23,10 +23,10 @@ test-1.24:
 	$(UPSTALL) --set servicePortA=4000 --set servicePortB=5000 $(NULL)
 	@make show
 
-test-1.25:
+test-failing-%:
 	@echo "--> start clean"
-	make clean $(NULL)
-	make KWOK_KUBE_VERSION=1.25.0 kwok $(NULL)
+	make clean
+	make KWOK_KUBE_VERSION=$* kwok
 
 	@echo "\n--> this installs without error"
 	$(UPSTALL) --set servicePortA=1000 --set servicePortB=2000 $(NULL)
@@ -46,11 +46,11 @@ test-1.25:
 
 .PHONY: test
 test:
-	make --no-print-directory test-1.24
+	make --no-print-directory test-success-1.24.12
 	@echo
 	@echo =============================
 	@echo
-	make --no-print-directory test-1.25
+	make --no-print-directory test-failing-1.25.8
 
 
 clean: clean-kwok
