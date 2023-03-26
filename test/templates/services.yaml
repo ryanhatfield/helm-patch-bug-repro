@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: service-a
+  labels:
+    repro: 'true'
 spec:
   type: ClusterIP
   ports:
@@ -16,6 +18,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: service-b
+  labels:
+    repro: 'true'
 spec:
   type: ClusterIP
   ports:
