@@ -62,7 +62,7 @@ test-failing-%:
 	$(UPSTALL) --set servicePortA=6000 --set servicePortB=7000 $(NULL) || true
 	@make show
 
-test-kubectl-failing-%:
+test-kubectl-success-%:
 	@echo "--> start clean"
 	make clean
 	make KWOK_KUBE_VERSION=$* kwok
@@ -75,12 +75,8 @@ test-kubectl-failing-%:
 	$(TEMPLATE) --set servicePortA=fail --set servicePortB=3000 | kubectl apply -f- $(NULL) || true
 	@make show
 
-	@echo "\n--> helm upgrade fails, service-a succeeds and is now 4000, but service-b fails"
+	@echo "\n--> helm upgrade succeeds, service-a is now 4000, and service-b is 5000"
 	$(TEMPLATE) --set servicePortA=4000 --set servicePortB=5000 | kubectl apply -f- $(NULL) || true
-	@make show
-
-	@echo "\n--> helm upgrade fails, service-a and service-b both fail consistently"
-	$(TEMPLATE) --set servicePortA=6000 --set servicePortB=7000 | kubectl apply -f- $(NULL) || true
 	@make show
 
 .PHONY: test
