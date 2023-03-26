@@ -13,14 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Get kwok
+      - name: get kwok
         run: wget -O kwokctl -c "https://github.com/kubernetes-sigs/kwok/releases/download/v0.1.1/kwokctl-$(go env GOOS)-$(go env GOARCH)"
 
-      - name: kwok
-        run: chmod +x kwokctl
+      - name: fix kwok
+        run: chmod +x kwokctl && mv kwokctl /usr/local/bin/kwokctl
 
-      - name: kwok
-        run: mv kwokctl /usr/local/bin/kwokctl
-
-      - name: config
+      - name: test
         run: make test
