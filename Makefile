@@ -1,31 +1,15 @@
 include kwok.mk
 
 UPSTALL=helm upgrade --install test test/.
-
-step-1: kwok ## Helm installs both services
-	$(UPSTALL) --set servicePortA=1000 --set servicePortB=2000
-
-step-2: kwok ## Helm fails to update service-a, but DOES update service-b
-	$(UPSTALL) --set servicePortA=fail --set servicePortB=3000 || true
-
-step-3: kwok ## Helm updates service-a, but DOES NOT update service-b
-	$(UPSTALL) --set servicePortA=4000 --set servicePortB=5000 || true
-
-step-4: kwok ## Helm DOES NOT update service-a or service-b
-	$(UPSTALL) --set servicePortA=6000 --set servicePortB=7000 || true
+NULL=> /dev/null 2>&1
 
 show:
-	kubectl get svc --selector repro=true
-
-show-helm-secret-%:
-	kubectl get secret sh.helm.release.v$*.test --output yaml
-
-NULL=> /dev/null 2>&1
+	@kubectl get svc --selector repro=true
 
 test-1.24:
 	@echo "--> start clean"
 	make clean $(NULL)
-	make KWOK_KUBE_VERSION=1.24.0 kwok
+	make KWOK_KUBE_VERSION=1.24.0 kwok $(NULL)
 
 	@echo "\n--> this installs without error"
 	$(UPSTALL) --set servicePortA=1000 --set servicePortB=2000 $(NULL)
@@ -42,7 +26,7 @@ test-1.24:
 test-1.25:
 	@echo "--> start clean"
 	make clean $(NULL)
-	make KWOK_KUBE_VERSION=1.25.0 kwok
+	make KWOK_KUBE_VERSION=1.25.0 kwok $(NULL)
 
 	@echo "\n--> this installs without error"
 	$(UPSTALL) --set servicePortA=1000 --set servicePortB=2000 $(NULL)
@@ -61,7 +45,12 @@ test-1.25:
 	@make show
 
 .PHONY: test
-test: test-1.24 test-1.25
+test:
+	make --no-print-directory test-1.24
+	@echo
+	@echo =============================
+	@echo
+	make --no-print-directory test-1.25
 
 
 clean: clean-kwok
