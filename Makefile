@@ -71,11 +71,11 @@ test-kubectl-success-%:
 	$(TEMPLATE) --set servicePortA=1000 --set servicePortB=2000 | kubectl apply -f- $(NULL)
 	@make show
 
-	@echo "\n--> helm upgrade fails, service-a fails, but service-b succeeds and is now 3000"
+	@echo "\n--> service-a fails, but service-b succeeds and is now 3000"
 	$(TEMPLATE) --set servicePortA=fail --set servicePortB=3000 | kubectl apply -f- $(NULL) || true
 	@make show
 
-	@echo "\n--> helm upgrade succeeds, service-a is now 4000, and service-b is 5000"
+	@echo "\n--> success, service-a is now 4000, and service-b is 5000"
 	$(TEMPLATE) --set servicePortA=4000 --set servicePortB=5000 | kubectl apply -f- $(NULL) || true
 	@make show
 
