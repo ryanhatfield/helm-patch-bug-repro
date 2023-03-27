@@ -19,5 +19,14 @@ jobs:
       - name: fix kwok
         run: chmod +x kwokctl && mv kwokctl /usr/local/bin/kwokctl
 
-      - name: test
-        run: make test
+      - name: test helm success 1.24.12
+        run: make --no-print-directory test-success-1.24.12
+
+      - name: test helm failure 1.25.8
+        run: make --no-print-directory test-failure-1.25.8
+
+      - name: test kubectl server-side 1.24.12
+        run: make --no-print-directory test-kubectl-1.24.12
+
+      - name: test kubectl server-side 1.25.8
+        run: make --no-print-directory test-kubectl-1.25.8
